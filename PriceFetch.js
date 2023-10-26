@@ -1,15 +1,28 @@
 const {ethers} = require("ethers")
-const Quoter = require('@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json')
+const {abi:QuoterABI} = require('@uniswap/v3-periphery/artifacts/contracts/lens/Quoter.sol/Quoter.json')
 
 const Provider= new ethers.providers.JsonRpcProvider("https://eth-mainnet.g.alchemy.com/v2/vcTD-zoE41OoKyny7NQmsTzsO2wpwFUh")
 
 
 const fetchPrice = async(addressFrom, addressTo, humanValue)=>{
+    const QUOTER_CONTRACT_ADDRESS = "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6";
     const quoterContract = new ethers.Contract(
         QUOTER_CONTRACT_ADDRESS,
-        Quoter.abi,
-        getProvider()
+        QuoterABI,
+        Provider
       )
+
+      const amountIn = ethers.utils. parseUnits(humanValue,18)
+      const quotedAmountOut = await quoterContract.callStatic.quoteExactInputSingle(
+        addressFrom,
+        addressTo,
+        3000,
+        amountIn.toString(),
+        0
+      )
+      const amount = ethers.utils.formatUnits(quotedAmountOut. toString(),18)
+      return amount
+
 }
 
 const main = async()=>{
